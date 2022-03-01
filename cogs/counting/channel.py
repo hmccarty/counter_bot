@@ -27,8 +27,8 @@ class Channel(commands.Cog, name="channel"):
         description="Designate a channel for counting",
     )
     async def add_channel(self, context: Context,
-        channel: disnake.TextChannel, last_count: typing.Optional[str] = "",
-        count_type: typing.Optional[str] = "basic", score: typing.Optional[int] = 0) -> None:
+        channel: disnake.TextChannel, count_type: str,
+        last_count: typing.Optional[str] = "", score: typing.Optional[int] = 0) -> None:
 
         CountingChannel.create(channel.id, last_count, 0, count_type, score)
         await context.reply("Counting channel set!")

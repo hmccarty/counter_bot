@@ -11,6 +11,7 @@ import os
 import platform
 import random
 import sys
+import sqlite3
 
 import disnake
 from disnake import ApplicationCommandInteraction
@@ -19,6 +20,8 @@ from disnake.ext.commands import Bot
 from disnake.ext.commands import Context
 
 import exceptions
+from helpers import counts
+from helpers.sql_manager import CountingChannel, CountingMember
 
 if not os.path.isfile("config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
@@ -26,40 +29,9 @@ else:
     with open("config.json") as file:
         config = json.load(file)
 
-"""	
-Setup bot intents (events restrictions)
-For more information about intents, please go to the following websites:
-https://docs.disnake.dev/en/latest/intents.html
-https://docs.disnake.dev/en/latest/intents.html#privileged-intents
-
-
-Default Intents:
-intents.bans = True
-intents.dm_messages = False
-intents.dm_reactions = False
-intents.dm_typing = False
-intents.emojis = True
-intents.guild_messages = True
-intents.guild_reactions = True
-intents.guild_typing = False
-intents.guilds = True
-intents.integrations = True
-intents.invites = True
-intents.reactions = True
-intents.typing = False
-intents.voice_states = False
-intents.webhooks = False
-
-Privileged Intents (Needs to be enabled on dev page), please use them only if you need them:
-intents.members = True
-intents.messages = True
-intents.presences = True
-"""
-
 intents = disnake.Intents.default()
 
 bot = Bot(command_prefix=config["prefix"], intents=intents)
-
 
 @bot.event
 async def on_ready() -> None:
@@ -79,13 +51,13 @@ async def status_task() -> None:
     """
     Setup the game status task of the bot
     """
-    statuses = ["with you!", "with Krypton!", "with humans!"]
-    await bot.change_presence(activity=disnake.Game(random.choice(statuses)))
+    await bot.change_presence(
+        activity=disnake.Game("https://github.com/hmccarty/counter_bot")
+    )
 
 
 # Removes the default help command of discord.py to be able to create our custom help command.
 bot.remove_command("help")
-
 
 def load_commands(command_type: str) -> None:
     for file in os.listdir(f"./cogs/{command_type}"):
@@ -98,15 +70,8 @@ def load_commands(command_type: str) -> None:
                 exception = f"{type(e).__name__}: {e}"
                 print(f"Failed to load extension {extension}\n{exception}")
 
-
 if __name__ == "__main__":
-    """
-    This will automatically load slash commands and normal commands located in their respective folder.
-    
-    If you want to remove slash commands, which is not recommended due to the Message Intent being a privileged intent, you can remove the loading of slash commands below.
-    """
-    load_commands("slash")
-    load_commands("normal")
+    load_commands("counting")
 
 
 @bot.event
@@ -117,51 +82,30 @@ async def on_message(message: disnake.Message) -> None:
     """
     if message.author == bot.user or message.author.bot:
         return
-    await bot.process_commands(message)
 
+    # Check if sent in sent in a counting channel
+    cc = CountingChannel.get(message.channel.id)
+    if cc is not None:
+        if counts.validate_count(cc.count_type, cc.last_count, message.content):
+            # Prevent double counting
+            if cc.last_counter == message.author.id:
+                responses = ["How are you going to return your own serve?",
+                            "Chill out and let someone else count",
+                            "Counting is a team game",
+                            "Take a break man, you're counting too hard"]
+                await message.reply(random.choice(responses))
+                return
 
-@bot.event
-async def on_slash_command(interaction: ApplicationCommandInteraction) -> None:
-    """
-    The code in this event is executed every time a slash command has been *successfully* executed
-    :param interaction: The slash command that has been executed.
-    """
-    print(
-        f"Executed {interaction.data.name} command in {interaction.guild.name} (ID: {interaction.guild.id}) by {interaction.author} (ID: {interaction.author.id})")
-
-
-@bot.event
-async def on_slash_command_error(interaction: ApplicationCommandInteraction, error: Exception) -> None:
-    """
-    The code in this event is executed every time a valid slash command catches an error
-    :param interaction: The slash command that failed executing.
-    :param error: The error that has been faced.
-    """
-    if isinstance(error, exceptions.UserBlacklisted):
-        """
-        The code here will only execute if the error is an instance of 'UserBlacklisted', which can occur when using
-        the @checks.is_owner() check in your command, or you can raise the error by yourself.
-        
-        'hidden=True' will make so that only the user who execute the command can see the message
-        """
-        embed = disnake.Embed(
-            title="Error!",
-            description="You are blacklisted from using the bot.",
-            color=0xE02B2B
-        )
-        print("A blacklisted user tried to execute a command.")
-        return await interaction.send(embed=embed, ephemeral=True)
-    elif isinstance(error, commands.errors.MissingPermissions):
-        embed = disnake.Embed(
-            title="Error!",
-            description="You are missing the permission(s) `" + ", ".join(
-                error.missing_permissions) + "` to execute this command!",
-            color=0xE02B2B
-        )
-        print("A blacklisted user tried to execute a command.")
-        return await interaction.send(embed=embed, ephemeral=True)
-    raise error
-
+            # Update score and last count
+            cc.update(message.content, message.author.id)
+            cm = CountingMember.get_or_create(message.author.id)
+            cm.update(cm.score + 1)
+        else:
+            msg = await message.reply(
+                f"That is not a valid count, current count is: {cc.last_count}. React to shame.")
+            await msg.add_reaction("😡") # Rage emoji
+    else:
+        await bot.process_commands(message)
 
 @bot.event
 async def on_command_completion(context: Context) -> None:

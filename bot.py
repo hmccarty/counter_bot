@@ -88,13 +88,13 @@ async def on_message(message: disnake.Message) -> None:
     if cc is not None:
         if counts.validate_count(cc.count_type, cc.last_count, message.content):
             # Prevent double counting
-            if cc.last_counter == message.author.id:
-                responses = ["How are you going to return your own serve?",
-                            "Chill out and let someone else count",
-                            "Counting is a team game",
-                            "Take a break man, you're counting too hard"]
-                await message.reply(random.choice(responses))
-                return
+            # if cc.last_counter == message.author.id:
+            #     responses = ["How are you going to return your own serve?",
+            #                 "Chill out and let someone else count",
+            #                 "Counting is a team game",
+            #                 "Take a break man, you're counting too hard"]
+            #     await message.reply(random.choice(responses))
+            #     return
 
             # Update score and last count
             cc.update(message.content, message.author.id)

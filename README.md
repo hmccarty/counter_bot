@@ -37,8 +37,9 @@ python bot.py
 
 It's super easy to add types in `helpers/counts.py`, but the currently supported types are:
 
-- "basic": Single positive increments
-- "backwards": Single negative increments
+- `basic:` Single positive increments in base 10
+- `backwards`: Single negative increments in base 10
+- `binary`: Single positive increments in binary
 
 ## Usage
 

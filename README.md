@@ -1,79 +1,37 @@
-# Python Discord Bot Template
+# Discord Counting Bot
 
-<p align="center">
-  <a href="//discord.gg/mTBrXyWxAF"><img src="https://img.shields.io/discord/739934735387721768?logo=discord"></a>
-  <a href="//github.com/kkrypt0nn/Python-Discord-Bot-Template/releases"><img src="https://img.shields.io/github/v/release/kkrypt0nn/Python-Discord-Bot-Template"></a>
-  <a href="//github.com/kkrypt0nn/Python-Discord-Bot-Template/commits/main"><img src="https://img.shields.io/github/last-commit/kkrypt0nn/Python-Discord-Bot-Template"></a>
-  <a href="//github.com/kkrypt0nn/Python-Discord-Bot-Template/releases"><img src="https://img.shields.io/github/downloads/kkrypt0nn/Python-Discord-Bot-Template/total"></a>
-  <a href="//github.com/kkrypt0nn/Python-Discord-Bot-Template/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/kkrypt0nn/Python-Discord-Bot-Template"></a>
-  <a href="//github.com/kkrypt0nn/Python-Discord-Bot-Template"><img src="https://img.shields.io/github/languages/code-size/kkrypt0nn/Python-Discord-Bot-Template"></a>
-  <a href="//github.com/kkrypt0nn/Python-Discord-Bot-Template/issues"><img src="https://img.shields.io/github/issues-raw/kkrypt0nn/Python-Discord-Bot-Template"></a>
-</p>
+Tired of robots taking your jobs? Want payback?
 
-This repository is a template that everyone can use for the start of their discord bot.
+Take their jobs (with the assistance of this one additional bot)!
 
-When I first started creating my discord bot it took me a while to get everything setup and working with cogs and more.
-I would've been happy if there were any template existing. However, there wasn't any existing template. That's why I
-decided to create my own template to let <b>you</b> guys create your discord bot easily.
+## Setup
 
-Please note that this template is not supposed to be the best template, but a good template to start learning how
-discord.py works and to make your own bot easily. After the version 4.0 the template is using disnake, as discord.py has
-stoppped development.
+Invite your bot on servers using the following invite:
+https://discordapp.com/oauth2/authorize?&client_id=YOUR_APPLICATION_ID_HERE&scope=bot&permissions=67648
 
-If you plan to use this template to make your own template or bot, you **have to**:
+Configuration handled in `config.json`:
 
-- Keep the credits, and a link to this repository in all the files that contains my code
-- Keep the same license for unchanged code
+| Variable           | Definition                                                            |
+| ------------------ | ----------------------------------------------------------------------|
+| bot_prefix         | Indicator of a bot command (default: ".")                             |
+| bot_token          | Discord token application                                             |
+| db                 | Database file location (default: "./bot.db)                           |
+| application_id     | Provided by discord                                                   |
+| permissions        | Permissions integer assigned to bot                                   |
 
-See [the license file](https://github.com/kkrypt0nn/Python-Discord-Bot-Template/blob/master/LICENSE.md) for more
-information, I reserve the right to take down any repository that does not meet these requirements.
+<br />
 
-## Support
+Before running the bot, install required dependencies:
 
-Before requesting support, you should know that this template requires you to have at least a **basic knowledge** of
-Python and the library is made for advanced users. Do not use this template if you don't know the
-basics. [Here's](https://pythondiscord.com/pages/resources) a link for resources to learn python.
-
-If you need some help for something, do not hesitate to join my discord server [here](https://discord.gg/mTBrXyWxAF).
-
-All the updates of the template are available [here](UPDATES.md).
-
-## Disclaimer
-
-Slash commands can take **some hours** to get registered on guilds, so if you want to test a command you should use
-the `guild_ids` parameter in the command decorator so that it gets registered instantly. Example:
-
-```py
-@commands.slash_command(
-    name="command",
-    description="Command description",
-    guild_ids=[GUILD_ID1, GUILD_ID2]  # These should be testing guild(s) ID, as always: an integer.
-)
+```
+pip install -r requirements.txt
 ```
 
-When using the template you confirm that you have read the [license](LICENSE.md) and comprehend that I can take down
-your repository if you do not meet these requirements.
+Then start the bot using the following command:
 
-Please do not open issues or pull requests about things that are written in the [TODO file](TODO.md), they are **
-already** under work for a future version of the template.
-
-## How to download it
-
-This repository is now a template, on the top left you can simply click on "**Use this template**" to create a GitHub
-repository based on this template.
-
-Alternatively you can do the following:
-
-* Clone/Download the repository
-    * To clone it and get the updates you can definitely use the command
-      `git clone`
-* Create a discord bot [here](https://discord.com/developers/applications)
-* Get your bot token
-* Invite your bot on servers using the following invite:
-  https://discord.com/oauth2/authorize?&client_id=YOUR_APPLICATION_ID_HERE&scope=bot+applications.commands&permissions=PERMISSIONS (
-  Replace `YOUR_APPLICATION_ID_HERE` with the application ID and replace `PERMISSIONS` with the required permissions
-  your bot needs that it can be get at the bottom of a this
-  page https://discord.com/developers/applications/YOUR_APPLICATION_ID_HERE/bot)
+```
+python bot.py
+```
 
 ## How to set up
 
@@ -124,24 +82,24 @@ If you have just installed python today, then you just need to use the following
 python bot.py
 ```
 
-## Issues or Questions
+## Supported Counting Types
 
-If you have any issues or questions of how to code a specific command, you can:
+It's super easy to add types in `helpers/counts.py`, but the currently supported types are:
 
-* Join my discord server [here](https://discord.gg/mTBrXyWxAF)
-* Post them [here](https://github.com/kkrypt0nn/Python-Discord-Bot-Template/issues)
+- "basic": Single positive increments
+- "backwards": Single negative increments
 
-Me or other people will take their time to answer and help you.
+## Usage
 
-## Versioning
+To add a counting channel:
 
-We use [SemVer](http://semver.org) for versioning. For the versions available, see
-the [tags on this repository](https://github.com/kkrypt0nn/Python-Discord-Bot-Template/tags).
+```
+.createchannel #channel-to-set <type> <starting-count (optional)> <starting-score (optional>
+```
 
-## Built With
+Starting counting is where the counting begins and score is initial score to set for the channel. You should only use starting score if you have been counting before adding bot.
 
-* [Python 3.9.9](https://www.python.org/)
-
-## License
-
-This project is licensed under the Apache License 2.0 - see the [LICENSE.md](LICENSE.md) file for details
+As an example:
+```
+.createchannel #counting basic 1 0
+```

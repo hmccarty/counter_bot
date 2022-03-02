@@ -30,6 +30,11 @@ class Channel(commands.Cog, name="channel"):
         channel: disnake.TextChannel, count_type: str,
         last_count: typing.Optional[str] = "", score: typing.Optional[int] = 0) -> None:
 
+        cc = CountingChannel.get(channel.id)
+        if cc is not None:
+            await context.reply("That is already a counting channel")
+            return
+
         CountingChannel.create(channel.id, last_count, 0, count_type, score)
         await context.reply("Counting channel set!")
 

@@ -91,7 +91,8 @@ class CountingMember(object):
         try:
             with open_db() as c:
                 results = c.execute(
-                    f"SELECT * FROM members ORDER BY score desc LIMIT {n}"
+                    "SELECT * FROM members ORDER BY score desc LIMIT (?)",
+                    (n,)
                 ).fetchall()
 
                 members = []
